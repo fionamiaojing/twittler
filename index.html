@@ -6,17 +6,56 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Playfair+Display">
     <script src="jquery.js"></script>
     <script src="data_generator.js"></script>
+    <script src="moment.js"></script>
+    <script>
+        moment().format();
+    </script>
   </head>
   <body>
+
      <!-- Header -->
     <header class='primary-header group'>
       <img src="assets/images/twittler_icon.png" alt="Twittler Icon">
       <h1>Twittler</h1>
     </header>
+
     <!-- Divider -->
-    <section class="home group">
+    <section class="divider group">
       <a href = "index.html">Home </a>
+      <button id="tweetBtn">Tweet</button>
     </section>
+
+    <script>
+      $(document).ready(function(){
+        $('#tweetBtn').on('click', function() {
+          $('.new-tweet').slideDown();
+        })
+      });
+    </script>
+
+    <!-- New Tweet -->
+    <section class="new-tweet group">
+      <h3>Compose New Tweet</h3>
+      <div class="userid">
+        <label for="userid">User Name: </label>
+        <input type="text" id="myname" value="">
+      </div>
+      <div class="inputmessage">
+        <label for="newtweet">New Tweet: </label>
+        <textarea rows="5" cols = "62" id="newtweet"></textarea>
+      </div>
+      <button class="submit"> Submit </button>
+      <button class="cancel"> Cancel </button>
+
+    </section>
+
+    <script>
+      $(document).ready(function(){
+
+
+      });
+    </script>
+
     <!-- Tweet Content -->
     <section class="content group">
       <script>
@@ -25,28 +64,30 @@
           var $content= $('.content');
           $content.html('');
           // Time formatting:
-          function timeFormatter(time){
-            if (time.getHours()>=12){
-                var hour = parseInt(time.getHours()) - 12;
-                var amPm = "PM";
-            } else {
-                var hour = time.getHours();
-                var amPm = "AM";
-            }
-            return hour + ":" + time.getMinutes() + " " + amPm + " " + time.getMonth() + "/" + time.getDate() + "/" + time.getFullYear();
-          };
+          // function timeFormatter(time){
+          //   if (time.getHours()>=12){
+          //       var hour = parseInt(time.getHours()) - 12;
+          //       var amPm = "PM";
+          //   } else {
+          //       var hour = time.getHours();
+          //       var amPm = "AM";
+          //   }
+          //   return hour + ":" + time.getMinutes() + " " + amPm + " " + time.getMonth() + "/" + time.getDate() + "/" + time.getFullYear();
+          // };
           //tweet content create:
           function createTweetContent(tweet, $tweet) {
             var name = '<a class=name href="?user='+tweet.user+'"> @ ' + tweet.user + '</a>';
             var message = '<p class=message>' + tweet.message + '</p>';
-            var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
+            //var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
+            var timeFromNow = '<p class=time>' + moment(tweet.created_at).fromNow() + '</p>';
 
             $tweet.append(name);
             $tweet.append(message);
-            $tweet.append(time);
-            $tweet.addClass('button');
+            //$tweet.append(time);
+            $tweet.append(timeFromNow);
+            $tweet.addClass('tweetcontent');
             $tweet.appendTo($content);
-          }
+          };
 
           //random create tweets;
           var index = streams.home.length - 1;
@@ -63,14 +104,6 @@
               createTweetContent(tweet, $tweet);
             }
 
-            // var name = '<a class=name href="?user='+tweet.user+'"> @ ' + tweet.user + '</a>';
-            // var message = '<p class=message>' + tweet.message + '</p>';
-            // var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
-            //
-            // $tweet.append(name);
-            // $tweet.append(message);
-            // $tweet.append(time);
-
             //$tweet.text("@" + tweet.user + ': \n' + tweet.message + '\n' + createTime);
             //$tweet.html($tweet.html().replace(/\n/g,'<br/>'));
 
@@ -78,6 +111,29 @@
             // $tweet.appendTo($content);
             index -= 1;
           }
+
+          $('.submit').on('click', function() {
+            var $tweet = $('<div></div>');
+            var user = $('#myname').val();
+            var msg = $('textarea#newtweet').val();
+
+            var name = '<a class=name href="?user='+ user +'"> @ ' + user + '</a>';
+            var message = '<p class=message>' + msg + '</p>';
+            //var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
+            var timeFromNow = '<p class=time>' + moment(new Date()).fromNow() + '</p>';
+
+            $tweet.append(name);
+            $tweet.append(message);
+            //$tweet.append(time);
+            $tweet.append(timeFromNow);
+            $tweet.addClass('tweetcontent');
+            $tweet.prependTo($content);
+            $('.new-tweet').fadeOut('fast');
+          });
+
+          $('.cancel').on('click', function() {
+            $('.new-tweet').fadeOut('fast');
+          });
         });
       </script>
     </section>
