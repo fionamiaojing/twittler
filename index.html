@@ -37,12 +37,12 @@
     <section class="new-tweet group">
       <h3>Compose New Tweet</h3>
       <div class="userid">
-        <label for="userid">User Name: </label>
-        <input type="text" id="myname" value="">
+        <label for="userid" class="col-l">User Name: </label>
+        <input type="text" id="myname" class="col-r" value="">
       </div>
       <div class="inputmessage">
-        <label for="newtweet">New Tweet: </label>
-        <textarea rows="5" cols = "62" id="newtweet"></textarea>
+        <label for="newtweet" class="col-l">New Tweet: </label>
+        <textarea rows="5" cols = "62" id="newtweet" class="col-r"></textarea>
       </div>
       <button class="submit"> Submit </button>
       <button class="cancel"> Cancel </button>
@@ -75,19 +75,24 @@
           //   return hour + ":" + time.getMinutes() + " " + amPm + " " + time.getMonth() + "/" + time.getDate() + "/" + time.getFullYear();
           // };
           //tweet content create:
-          function createTweetContent(tweet, $tweet) {
-            var name = '<a class=name href="?user='+tweet.user+'"> @ ' + tweet.user + '</a>';
-            var message = '<p class=message>' + tweet.message + '</p>';
+          function createTweetContent(tweet, tweetuser, tweetmsg, tweettime) {
+            var name = '<a class=name href="?user='+ tweetuser +'"> @ ' + tweetuser + '</a>';
+            var message = '<p class=message>' + tweetmsg + '</p>';
             //var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
-            var timeFromNow = '<p class=time>' + moment(tweet.created_at).fromNow() + '</p>';
+            var timeFromNow = '<p class=time>' + moment(tweettime).fromNow() + '</p>';
 
+            return [name, message, timeFromNow]
+          };
+
+          function displayContent([name,message,timeFromNow], $tweet){
             $tweet.append(name);
             $tweet.append(message);
             //$tweet.append(time);
             $tweet.append(timeFromNow);
             $tweet.addClass('tweetcontent');
-            $tweet.appendTo($content);
-          };
+            $tweet.prependTo($content);
+          }
+
 
           //random create tweets;
           var index = streams.home.length - 1;
@@ -98,10 +103,12 @@
             if (document.URL.indexOf('?user=') != -1) {
               var id = document.URL.split('?user=')[1];
               if (tweet.user == id) {
-                createTweetContent(tweet, $tweet);
+                var contentList = createTweetContent(tweet, tweet.user, tweet.message, tweet.created_at);
+                displayContent(contentList, $tweet);
               };
             } else {
-              createTweetContent(tweet, $tweet);
+              var contentList = createTweetContent(tweet, tweet.user, tweet.message, tweet.created_at);
+              displayContent(contentList, $tweet);
             }
 
             //$tweet.text("@" + tweet.user + ': \n' + tweet.message + '\n' + createTime);
@@ -117,22 +124,16 @@
             var user = $('#myname').val();
             var msg = $('textarea#newtweet').val();
 
-            var name = '<a class=name href="?user='+ user +'"> @ ' + user + '</a>';
-            var message = '<p class=message>' + msg + '</p>';
-            //var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
-            var timeFromNow = '<p class=time>' + moment(new Date()).fromNow() + '</p>';
+            var contentList = createTweetContent(tweet, user, msg, new Date())
+            displayContent(contentList, $tweet);
 
-            $tweet.append(name);
-            $tweet.append(message);
-            //$tweet.append(time);
-            $tweet.append(timeFromNow);
-            $tweet.addClass('tweetcontent');
-            $tweet.prependTo($content);
-            $('.new-tweet').fadeOut('fast');
+            $('.new-tweet').slideUp();
+            $('#myname').val('');
+            $('textarea#newtweet').val('');
           });
 
           $('.cancel').on('click', function() {
-            $('.new-tweet').fadeOut('fast');
+            $('.new-tweet').slideUp();
           });
         });
       </script>
