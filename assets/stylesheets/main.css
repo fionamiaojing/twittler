@@ -149,7 +149,7 @@ h1 {
   z-index: 1;
   margin: 10px auto;
   padding: 10px;
-  width: 80%;
+  width: 60%;
   background-color: #FFFDE1;
   border: 1px solid #7FDFD4;
   text-align: center;
@@ -161,20 +161,32 @@ h3 {
   color: #61C0BF;
   font-size: 20px;
   font-weight: 400;
+  margin-bottom: 5px;
 }
 .userid,
 .inputmessage {
   display: block;
   padding-bottom: 10px;
 }
-
-
-input {
-  width: 50%;
+.col-l, .col-r {
+  display: inline-block;
+  vertical-align: middle;
 }
-.inputmessage input {
-  height: 100px;
+
+.col-l {
+  width: 20%;
 }
+
+.col-r {
+  width: 60%;
+}
+.submit {
+  margin-right: 10px;
+}
+.cancel {
+  margin-left: 10px;
+}
+
 .new-tweet button {
   color: #61C0BF;
   font-size: 15px;
