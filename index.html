@@ -49,50 +49,33 @@
 
     </section>
 
-    <script>
-      $(document).ready(function(){
-
-
-      });
-    </script>
-
     <!-- Tweet Content -->
     <section class="content group">
       <script>
-        $(document).ready(function(){
+        var visitor;
+        //tweet content create:
+        function createTweetContent(tweetuser, tweetmsg, tweettime) {
+          var name = '<a class=name href="?user='+ tweetuser +'"> @ ' + tweetuser + '</a>';
+          var message = '<p class=message>' + tweetmsg + '</p>';
+          //var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
+          var timeFromNow = '<p class=time>' + moment(tweettime).fromNow() + '</p>';
+
+          return [name, message, timeFromNow]
+        };
+
+        function displayContent([name,message,timeFromNow], $tweet, $content){
+          $tweet.append(name);
+          $tweet.append(message);
+          //$tweet.append(time);
+          $tweet.append(timeFromNow);
+          $tweet.addClass('tweetcontent');
+          $tweet.appendTo($content);
+        }
+
+        function renderTwits(){
 
           var $content= $('.content');
           $content.html('');
-          // Time formatting:
-          // function timeFormatter(time){
-          //   if (time.getHours()>=12){
-          //       var hour = parseInt(time.getHours()) - 12;
-          //       var amPm = "PM";
-          //   } else {
-          //       var hour = time.getHours();
-          //       var amPm = "AM";
-          //   }
-          //   return hour + ":" + time.getMinutes() + " " + amPm + " " + time.getMonth() + "/" + time.getDate() + "/" + time.getFullYear();
-          // };
-          //tweet content create:
-          function createTweetContent(tweet, tweetuser, tweetmsg, tweettime) {
-            var name = '<a class=name href="?user='+ tweetuser +'"> @ ' + tweetuser + '</a>';
-            var message = '<p class=message>' + tweetmsg + '</p>';
-            //var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
-            var timeFromNow = '<p class=time>' + moment(tweettime).fromNow() + '</p>';
-
-            return [name, message, timeFromNow]
-          };
-
-          function displayContent([name,message,timeFromNow], $tweet){
-            $tweet.append(name);
-            $tweet.append(message);
-            //$tweet.append(time);
-            $tweet.append(timeFromNow);
-            $tweet.addClass('tweetcontent');
-            $tweet.prependTo($content);
-          }
-
 
           //random create tweets;
           var index = streams.home.length - 1;
@@ -103,12 +86,12 @@
             if (document.URL.indexOf('?user=') != -1) {
               var id = document.URL.split('?user=')[1];
               if (tweet.user == id) {
-                var contentList = createTweetContent(tweet, tweet.user, tweet.message, tweet.created_at);
-                displayContent(contentList, $tweet);
+                var contentList = createTweetContent(tweet.user, tweet.message, tweet.created_at);
+                displayContent(contentList, $tweet, $content);
               };
             } else {
-              var contentList = createTweetContent(tweet, tweet.user, tweet.message, tweet.created_at);
-              displayContent(contentList, $tweet);
+              var contentList = createTweetContent(tweet.user, tweet.message, tweet.created_at);
+              displayContent(contentList, $tweet, $content);
             }
 
             //$tweet.text("@" + tweet.user + ': \n' + tweet.message + '\n' + createTime);
@@ -119,13 +102,22 @@
             index -= 1;
           }
 
+
+          setTimeout(renderTwits, 1500);
+        }
+
+        $(document).ready(function(){
+          renderTwits();
+
           $('.submit').on('click', function() {
-            var $tweet = $('<div></div>');
             var user = $('#myname').val();
             var msg = $('textarea#newtweet').val();
+            visitor = user;
+            if (streams.users[visitor] == undefined) {
+              streams.users[visitor] = [];
+            }
+            writeTweet(msg);
 
-            var contentList = createTweetContent(tweet, user, msg, new Date())
-            displayContent(contentList, $tweet);
 
             $('.new-tweet').slideUp();
             $('#myname').val('');
@@ -136,6 +128,8 @@
             $('.new-tweet').slideUp();
           });
         });
+
+
       </script>
     </section>
   </body>
