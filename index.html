@@ -25,14 +25,6 @@
       <button id="tweetBtn">Tweet</button>
     </section>
 
-    <script>
-      $(document).ready(function(){
-        $('#tweetBtn').on('click', function() {
-          $('.new-tweet').slideToggle();
-        })
-      });
-    </script>
-
     <!-- New Tweet -->
     <section class="new-tweet group">
       <h3>Compose New Tweet</h3>
@@ -54,12 +46,13 @@
       <script>
         var visitor;
         //tweet content create:
+        function escape(s) {
+          return $('<div/>').text(s).html();
+        }
         function createTweetContent(tweetuser, tweetmsg, tweettime) {
-          var name = '<a class=name href="?user='+ tweetuser +'"> @ ' + tweetuser + '</a>';
-          var message = '<p class=message>' + tweetmsg + '</p>';
-          //var time = '<p class=time>' + timeFormatter(tweet.created_at) + '</p>';
+          var name = '<a class=name href="#'+ escape(tweetuser) +'"> @ ' + escape(tweetuser) + '</a>';
+          var message = '<p class=message>' + escape(tweetmsg) + '</p>';
           var timeFromNow = '<p class=time>' + moment(tweettime).fromNow() + '</p>';
-
           return [name, message, timeFromNow]
         };
 
@@ -72,42 +65,49 @@
           $tweet.appendTo($content);
         }
 
-        function renderTwits(){
+        // if null display everybody
+        // if not null, display the tweets of the user
+        var displayUser = null;
 
+        function displayWho() {
+          if (document.URL.indexOf('#') != -1) {
+            displayUser = document.URL.split('#')[1];
+          } else {
+            displayUser = null;
+          }
+          renderOnce();
+        }
+
+        $(window).bind('hashchange', displayWho);
+
+        function renderOnce(){
           var $content= $('.content');
           $content.html('');
 
           //random create tweets;
-          var index = streams.home.length - 1;
+          var source;
+          if (displayUser === null) {
+            source = streams.home;
+          } else {
+            source = streams.users[displayUser];
+          }
+          var index = source.length - 1;
           while(index >= 0){
-            var tweet = streams.home[index];
+            var tweet = source[index];
             var $tweet = $('<div></div>');
-
-            if (document.URL.indexOf('?user=') != -1) {
-              var id = document.URL.split('?user=')[1];
-              if (tweet.user == id) {
-                var contentList = createTweetContent(tweet.user, tweet.message, tweet.created_at);
-                displayContent(contentList, $tweet, $content);
-              };
-            } else {
-              var contentList = createTweetContent(tweet.user, tweet.message, tweet.created_at);
-              displayContent(contentList, $tweet, $content);
-            }
-
-            //$tweet.text("@" + tweet.user + ': \n' + tweet.message + '\n' + createTime);
-            //$tweet.html($tweet.html().replace(/\n/g,'<br/>'));
-
-            // $tweet.addClass('button');
-            // $tweet.appendTo($content);
+            var contentList = createTweetContent(
+              tweet.user, tweet.message, tweet.created_at);
+            displayContent(contentList, $tweet, $content);
             index -= 1;
           }
+        }
 
-
-          setTimeout(renderTwits, 1500);
+        function renderTweetsNonstop(){
+          setInterval(renderOnce, 1500);
         }
 
         $(document).ready(function(){
-          renderTwits();
+          renderTweetsNonstop();
 
           $('.submit').on('click', function() {
             var user = $('#myname').val();
@@ -117,15 +117,18 @@
               streams.users[visitor] = [];
             }
             writeTweet(msg);
-
-
             $('.new-tweet').slideUp();
             $('#myname').val('');
             $('textarea#newtweet').val('');
+            renderOnce();
           });
 
           $('.cancel').on('click', function() {
             $('.new-tweet').slideUp();
+          });
+
+          $('#tweetBtn').on('click', function() {
+            $('.new-tweet').slideToggle();
           });
         });
 
