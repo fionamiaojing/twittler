@@ -22,7 +22,9 @@
     <!-- Divider -->
     <section class="divider group">
       <a href = "index.html">Home </a>
+
       <button id="tweetBtn">Tweet</button>
+      <button id="refresh">Refresh</button>
     </section>
 
     <!-- New Tweet -->
@@ -102,12 +104,12 @@
           }
         }
 
-        function renderTweetsNonstop(){
-          setInterval(renderOnce, 1500);
-        }
-
         $(document).ready(function(){
-          renderTweetsNonstop();
+          renderOnce();
+
+          $('#refresh').on('click', function() {
+            renderOnce();
+          })
 
           $('.submit').on('click', function() {
             var user = $('#myname').val();
